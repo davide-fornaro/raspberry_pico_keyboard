@@ -1,25 +1,22 @@
-<#
-.SYNOPSIS
-    PoC di esecuzione in-memory via HID.
-    Dimostra l'interazione con l'interfaccia utente grafica (GUI) e i componenti COM.
-#>
+# Prende il controllo del buffer visivo del terminale
+$Host.UI.RawUI.BackgroundColor = "Black"
+$Host.UI.RawUI.ForegroundColor = "Green"
+Clear-Host
 
-# 1. Nasconde la finestra del terminale nel caso in cui lo stager non l'abbia già fatto
-$window = Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern bool ShowWindow(int hWnd, int nCmdShow);' -Name "Win32ShowWindowAsync" -Namespace Win32Functions -PassThru
-$window::ShowWindow((Get-Process -Id $pid).MainWindowHandle, 0)
+Write-Host "[*] Inizializzazione diagnostica di sistema in memoria..." -ForegroundColor DarkGreen
+Start-Sleep -Seconds 1
 
-# 2. Istanzia il componente COM legacy per la sintesi vocale (Text-To-Speech)
-$speaker = New-Object -ComObject SAPI.SpVoice
+# Interroga il kernel per i metadati hardware tramite il Common Information Model (CIM)
+$os = Get-CimInstance Win32_OperatingSystem
+$cpu = Get-CimInstance Win32_Processor
+$gpu = Get-CimInstance Win32_VideoController
 
-# Esegue la voce in modalità asincrona (flag 1) per non bloccare l'esecuzione del codice successivo
-$speaker.Speak("Attenzione. Proof of concept eseguita con successo in memoria volatile.", 1)
+Write-Host "`n[+] Estrazione Dati Completata:" -ForegroundColor Cyan
+Write-Host "    OS: $($os.Caption) ($($os.OSArchitecture))"
+Write-Host "    CPU: $($cpu.Name)"
+Write-Host "    GPU: $($gpu.Name)"
+Write-Host "    RAM Libera: $([math]::Round($os.FreePhysicalMemory/1024, 2)) MB"
 
-# 3. Carica l'assembly .NET necessario per le interfacce grafiche Forms
-Add-Type -AssemblyName System.Windows.Forms
-
-# 4. Genera una MessageBox nativa a livello di OS (Tipo 0 = OK, Icona 64 = Informazione)
-$msg = "Il payload fileless è stato scaricato da GitHub ed eseguito in RAM.`n`nL'iniezione USB HID tramite ALT-Codes ha bypassato con successo il layout della tastiera."
-[System.Windows.Forms.MessageBox]::Show($msg, "Test di Sicurezza Accademico", 0, 64)
-
-# Forza una Garbage Collection pulita per rimuovere le tracce in memoria degli oggetti COM
-[System.Runtime.Interopservices.Marshal]::ReleaseComObject($speaker) | Out-Null
+# Blocca il thread per impedire l'autochiusura del processo
+Write-Host "`n[!] Premi un tasto qualsiasi per distruggere l'istanza..." -ForegroundColor Yellow
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
