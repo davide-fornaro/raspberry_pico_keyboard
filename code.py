@@ -31,38 +31,34 @@ def sync_numlock():
     Legge l'Output Report USB dall'OS per verificare lo stato del LED NumLock.
     Se è disabilitato, invia lo scancode per accenderlo e stabilizzare l'ambiente.
     """
-    # Keyboard.LED_NUM_LOCK corrisponde al bit 1 del report HID
     if not kbd.led_on(Keyboard.LED_NUM_LOCK):
         kbd.send(Keycode.KEYPAD_NUMLOCK)
-        # Pausa critica: diamo tempo al kernel di Windows di elaborare 
-        # l'interrupt, cambiare stato e rispedire l'Output Report di conferma.
         time.sleep(0.1)
 
 def write_with_alt(text):
-    sync_numlock()  # Assicuriamoci che NumLock sia attivo prima di inviare i codici ALT
+    sync_numlock()
 
     for carattere in text:
         ascii_val = ord(carattere)
         
         if ascii_val in (10, 13):
             kbd.send(Keycode.ENTER)
-            time.sleep(0.01) # Latenza per smaltire l'invio
+            time.sleep(0.01)
             continue
             
-        # Rigore matematico: formatta l'intero a stringa con padding di 4 zeri (es. 124 -> "0124")
         ascii_str = f"{ascii_val:04d}"
         
         kbd.press(Keycode.LEFT_ALT)
-        time.sleep(0.01) # Stabilizza il bus prima di inviare i numeri
+        time.sleep(0.01)
         
         for digit in ascii_str:
             kbd.press(NUMPAD[digit])
-            time.sleep(0.01) # T_dwell: tempo in cui il tasto è premuto
+            time.sleep(0.01)
             kbd.release(NUMPAD[digit])
-            time.sleep(0.01) # T_flight: attesa prima del tasto successivo
+            time.sleep(0.01)
             
         kbd.release(Keycode.LEFT_ALT)
-        time.sleep(0.01) # Pausa tra un carattere e l'altro
+        time.sleep(0.01)
 
 def win_exec(text):
     kbd.send(Keycode.GUI, Keycode.R)
